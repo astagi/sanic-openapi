@@ -22,11 +22,11 @@ class Spec:
                 "url": getattr(app.config, "API_LICENSE_URL", None),
             },
         }
-        host = getattr(app.config, "API_HOST", "localhost")
-        basePath = getattr(app.config, "API_BASEPATH", "")
+        self.host = getattr(app.config, "API_HOST", "")
+        self.basePath = getattr(app.config, "API_BASEPATH", "")
         self.servers = [
             {
-                "url": "{}://{}/{}".format(scheme, host, basePath),
+                "url": "{}://{}/{}".format(scheme, self.host, self.basePath),
                 "description": getattr(app.config, "API_DESCRIPTION", None),
             }
             for scheme in getattr(app.config, "API_SCHEMES", ["http"])

@@ -30,6 +30,8 @@ def blueprint_factory():
         # Globals
         # --------------------------------------------------------------- #
         _spec = Swagger3Spec(app=app)
+        spec_tags = {}
+        spec_paths = {}
         # --------------------------------------------------------------- #
         # Blueprints
         # --------------------------------------------------------------- #
@@ -62,12 +64,11 @@ def blueprint_factory():
                 method_handlers = zip(_route.methods, repeat(_route.handler))
 
             uri = _uri if _uri == "/" else _uri.rstrip("/")
-
             for segment in _route.parameters:
                 uri = re.sub("<" + segment.name + ".*?>", "{" + segment.name + "}", uri)
 
             for method, _handler in method_handlers:
-                if _handler not in operations:
+                if _handler in operations:
                     continue
 
                 operation = operations[_handler]
@@ -79,17 +80,19 @@ def blueprint_factory():
                     operation.parameter(_parameter.name, _parameter.cast, "path")
 
                 for _tag in operation.tags:
-                    if _tag not in _spec._tags.keys():
-                        _spec._tags[_tag] = Tag(_tag)
+                    if _tag not in spec_tags.keys():
+                        spec_tags[_tag] = Tag(_tag)
 
-                _spec._paths[uri][method.lower()] = operation
+                if uri not in spec_paths:
+                    spec_paths[uri] = {}
+                spec_paths[uri][method.lower()] = operation
 
-        _spec.tags = [_spec._tags[k] for k in _spec._tags]
+        _spec.tags = [spec_tags[k] for k in spec_tags]
 
         paths = {}
 
-        for path, operation in _spec._paths.items():
-            paths[path] = PathItem(**{k: v.build() for k, v in operation.items()})
+        for path, operation in spec_paths.items():
+            paths[path] = PathItem(**{k: v.build() for k, v in operation.items()}).serialize()
 
         _spec.paths = paths
 
