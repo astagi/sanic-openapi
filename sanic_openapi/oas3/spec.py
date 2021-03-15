@@ -22,11 +22,13 @@ class Spec:
                 "url": getattr(app.config, "API_LICENSE_URL", None),
             },
         }
-        self.host = getattr(app.config, "API_HOST", "")
-        self.basePath = getattr(app.config, "API_BASEPATH", "")
+        # host and basePath no longer need to be part of "self", as
+        # they are removed from spec in oas3
+        host = getattr(app.config, "API_HOST", "")
+        basePath = getattr(app.config, "API_BASEPATH", "")
         self.servers = [
             {
-                "url": "{}://{}/{}".format(scheme, self.host, self.basePath),
+                "url": "{}://{}/{}".format(scheme, host, basePath),
                 "description": getattr(app.config, "API_DESCRIPTION", None),
             }
             for scheme in getattr(app.config, "API_SCHEMES", ["http"])

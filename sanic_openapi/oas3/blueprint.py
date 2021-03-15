@@ -24,6 +24,15 @@ def blueprint_factory():
     def index(request):
         return redirect("{}/".format(blueprint.url_prefix))
 
+    @blueprint.route("/swagger-config")
+    def config(request):
+        options = {}
+
+        if hasattr(request.app.config, "SWAGGER_UI_CONFIGURATION"):
+            options = getattr(request.app.config, "SWAGGER_UI_CONFIGURATION")
+
+        return json(options)
+
     @blueprint.listener("before_server_start")
     def build_spec(app, loop):
         # --------------------------------------------------------------- #
@@ -68,7 +77,7 @@ def blueprint_factory():
                 uri = re.sub("<" + segment.name + ".*?>", "{" + segment.name + "}", uri)
 
             for method, _handler in method_handlers:
-                if _handler in operations:
+                if _handler not in operations:
                     continue
 
                 operation = operations[_handler]
@@ -98,7 +107,7 @@ def blueprint_factory():
 
         blueprint._spec = _spec
 
-    @blueprint.route("/openapi.json")
+    @blueprint.route("/swagger.json")
     @doc_route(exclude=True)
     def spec(request):
         return json(blueprint._spec.as_dict)
