@@ -61,13 +61,13 @@ def blueprint_factory():
         )
 
         for scheme in getattr(app.config, "API_SCHEMES", ["http"]):
-            host = getattr(app.config, "API_HOST", "localhost")
-            if not host:
-                continue
+            host = getattr(app.config, "API_HOST", "")
+            # if not host:
+            #     continue
 
             basePath = getattr(app.config, "API_BASEPATH", "")
-            if basePath is None:
-                continue
+            # if basePath is None:
+            #     continue
 
             specification.url(f"{scheme}://{host}/{basePath}")
 
@@ -93,7 +93,6 @@ def blueprint_factory():
         for _uri, _route in app.router.routes_all.items():
             if "<file_uri" in _uri:
                 continue
-
             handler_type = type(_route.handler)
 
             if handler_type is CompositionView:
@@ -108,7 +107,7 @@ def blueprint_factory():
                 uri = re.sub("<" + segment.name + ".*?>", "{" + segment.name + "}", uri)
 
             for method, _handler in method_handlers:
-                if _handler not in operations:
+                if _handler in operations:
                     continue
 
                 operation = operations[_handler]
